@@ -40,6 +40,21 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
         res.status(400).send("image_Url needed")
       }
 
+      const isImageUrl = require('is-image-url');
+      var isImage : boolean = isImageUrl(image_url);
+      console.log("is image url" + isImage)
+      var image : string;
+
+      filterImageFromURL(image_url).then( response => {
+          image = response;
+          console.log("response url" + image);
+          return res.sendfile(image);
+      }).catch( e=> {
+          return res.status(404).send(e)
+      }).finally( () => {
+          Promise.resolve(deleteLocalFiles([image]))
+      })
+
   });
 
 
