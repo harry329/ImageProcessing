@@ -1,0 +1,30 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Udacity Cloud Project",
+    "description": "Simple api for Udacity Project"
+  },
+  "schemes": [
+    "http"
+  ],
+  "host": "localhost:8082",
+  "basePath": "/filteredimage?image_url={{}}",
+  "paths": {
+    "/filteredimage/": {
+      "get": {
+        "summary": "Get Image filtered api",
+        "description": "Filtered applied image",
+        "responses": {
+          "200": {
+            "description": "Filtered Image",
+            "schema": {
+              "type": "object",
+              "image": {}
+            }
+          }
+        }
+      }
+    }
+  }
+}

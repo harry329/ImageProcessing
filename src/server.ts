@@ -1,4 +1,4 @@
-import express, {response} from 'express';
+import express, {NextFunction,Request, Response} from 'express';
 import bodyParser from 'body-parser';
 import {filterImageFromURL, deleteLocalFiles} from './util/util';
 
@@ -10,6 +10,13 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   // Set the network port
   const port = process.env.PORT || 8082;
 
+  // const swaggerUi = require('swagger-ui-express');
+  // const swaggerDocument = require('./swagger.json')
+
+    const swaggerUi = require('swagger-ui-express');
+    const swaggerDocument = require('./swagger.json');
+
+    app.use('/api-docs',swaggerUi.serve,swaggerUi.setup(swaggerDocument));
   // Use the body parser middleware for post requests
   app.use(bodyParser.json());
 
@@ -33,7 +40,7 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
 
 
 
-  app.get("/filteredimage/", async (req, res) => {
+  app.get("/filteredimage/", reqAuth, async (req, res) => {
       let {image_url} = req.query;
       console.log("image_url is " + image_url);
       if(!image_url) {
@@ -48,15 +55,22 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
       filterImageFromURL(image_url).then( response => {
           image = response;
           console.log("response url" + image);
+          res.on('finish', () => {
+              Promise.resolve(deleteLocalFiles([image]))
+          })
           return res.sendfile(image);
       }).catch( e=> {
           return res.status(404).send(e)
-      }).finally( () => {
-          Promise.resolve(deleteLocalFiles([image]))
       })
 
   });
 
+  function reqAuth(req : Request, res : Response, next: NextFunction) {
+      if(!req.headers || !req.headers.authorization) {
+          return res.status(401).send("no headers");
+      }
+      return next();
+  }
 
   //Just some update
   // Root Endpoint
